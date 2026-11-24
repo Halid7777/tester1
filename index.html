@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kriptohal Pro · Binance</title>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<header>
+  <div class="logo">KRIPTOHAL PRO</div>
+  <nav class="tabs" id="tabs">
+    <button data-tab="market">Рынок</button>
+    <button data-tab="terminal">Терминал</button>
+    <button data-tab="portfolio">Портфель</button>
+    <button data-tab="history">История</button>
+    <button data-tab="analytics">Аналитика</button><button data-tab="invest">Инвестиции</button>
+  </nav>
+  <button id="mode"></button>
+  <button id="theme">☾</button>
+  <div class="src demo" id="src"><span class="dot"></span><span id="srcT">—</span> · <span id="upd">—</span></div>
+</header>
+<div class="warn" id="warn">Binance недоступен из вашей сети. Показаны ДЕМО-данные, это не реальные цены. Заказы симулируются.</div>
+<div id="msg" class="toast"></div>
+
+<main>
+<section id="s-market">
+  <div class="cols" id="top" style="margin-bottom:10px"></div>
+  <div class="card"><div class="row" id="chips" style="margin-bottom:8px"><button class="on" data-f="all">Все</button><button data-f="fav">Избранное</button><button data-f="up">Рост</button><button data-f="down">Падение</button><button data-f="vol">Объём</button></div><input id="q" placeholder="Поиск: BTC, ETH..."></div>
+  <div class="card wrap">
+    <table>
+      <thead><tr><th>★</th><th>Пара</th><th>Цена, USDT</th><th>24ч</th><th>Макс 24ч</th><th>Мин 24ч</th><th>Объём 24ч, USDT</th></tr></thead>
+      <tbody id="mk"></tbody>
+    </table>
+    <p class="muted" style="font-size:12px">Капитализация и доминация BTC в Binance API не передаются, поэтому здесь их нет.</p>
+  </div>
+</section>
+
+<section id="s-terminal" class="hidden">
+  <div class="term">
+    <div class="card">
+      <div class="row">
+        <select id="sym" style="width:auto"></select>
+        <div class="big" id="px">—</div>
+        <span id="chg"></span>
+        <span class="muted" id="hl" style="font-size:12px"></span>
+      </div>
+      <div class="row" style="margin:6px 0">
+        <div class="row" id="ivs" style="gap:3px"></div>
+        <span style="flex:1"></span>
+        <div class="row" id="inds" style="gap:3px"></div>
+      </div>
+      <div id="leg"></div>
+      <canvas id="chart"></canvas>
+      <div class="hint">Колесо мыши — масштаб, перетаскивание — прокрутка по времени, наведение — значения свечи.</div>
+    </div>
+    <div class="card book" style="padding:6px">
+      <div id="bk"></div>
+      <div id="sp" class="muted" style="text-align:center;padding:4px 0"></div>
+      <hr style="border-color:var(--b)">
+      <div id="tape" style="max-height:340px;overflow:auto"></div>
+    </div>
+    <div>
+      <div class="card">
+        <div class="row"><button id="bB" class="on">Купить</button><button id="bS">Продать</button></div>
+        <label>Тип ордера</label>
+        <select id="ot"></select>
+        <div class="hint" id="th"></div>
+        <label id="lp">Цена, USDT</label>
+        <input id="op" type="number" step="any">
+        <label id="la">Сумма, USDT</label>
+        <input id="oa" type="number" step="any">
+        <div class="row" style="margin-top:4px"><button data-p=".25">25%</button><button data-p=".5">50%</button><button data-p="1">100%</button></div>
+        <div class="muted" id="sum" style="margin-top:8px;font-size:12px;min-height:30px"></div>
+        <div class="muted" id="av" style="font-size:12px"></div>
+        <button class="bigbtn" id="go">Купить</button>
+        <div class="hint glos">Market — мгновенно по стакану. Limit — только по вашей цене или лучше. Stop-Loss — продажа при падении. Take-Profit — продажа при росте. Комиссия 0.1%.</div>
+      </div>
+      <div class="card"><b>Открытые ордера</b><div id="open" style="margin-top:6px"></div></div>
+      <div class="card"><b>Алерт цены</b>
+        <div class="row" style="margin-top:6px"><input id="al" type="number" step="any" placeholder="Цена"><button id="alB">Добавить</button></div>
+        <div id="alerts" class="muted" style="font-size:12px;margin-top:6px"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="s-portfolio" class="hidden">
+  <div class="card"><div class="stats" id="pst"></div></div>
+  <div class="card wrap">
+    <table>
+      <thead><tr><th>Актив</th><th>Кол-во</th><th>Ср. цена входа</th><th>Цена</th><th>Стоимость</th><th>Доля</th><th>Нереализ. PnL</th></tr></thead>
+      <tbody id="hd"></tbody>
+    </table>
+  </div>
+  <div class="card"><b>Стоимость портфеля (за время работы)</b><canvas id="eq"></canvas></div>
+  <div class="card">
+    <label>Стартовый капитал, USDT (сбрасывает счёт, портфель и историю)</label>
+    <div class="row"><input id="cap" type="number" value="10000"><button id="capB">Сбросить счёт</button></div>
+  </div>
+</section>
+
+<section id="s-history" class="hidden">
+  <div class="card row">
+    <select id="hf" style="width:auto">
+      <option value="all">Все операции</option><option value="buy">Покупки</option><option value="sell">Продажи</option>
+      <option value="open">Открытые</option><option value="filled">Исполненные</option><option value="cancelled">Отменённые</option>
+    </select>
+    <button id="csvB">Экспорт CSV</button>
+  </div>
+  <div class="card wrap">
+    <table>
+      <thead><tr><th>Время</th><th>Пара</th><th>Сторона</th><th>Тип</th><th>Исполнено</th><th>Цена</th><th>Комиссия</th><th>Сумма, USDT</th><th>PnL</th><th>Статус</th><th>📝</th></tr></thead>
+      <tbody id="ht"></tbody>
+    </table>
+    <p id="noo" class="muted">Операций пока нет. Нажмите на строку, чтобы добавить заметку в журнал.</p>
+  </div>
+  <div class="card hidden" id="cbox"><p class="muted" style="font-size:12px">Скопируйте текст и сохраните как файл .csv</p><textarea id="ctxt" rows="8"></textarea></div>
+</section>
+
+<section id="s-analytics" class="hidden">
+  <div class="card"><div class="stats" id="an"></div></div>
+  <div class="card"><b>Журнал сделок</b> <span class="muted" style="font-size:12px">Заметки из раздела «История».</span></div>
+  <div id="jr"></div>
+</section>
+<section id="s-invest" class="hidden">
+ <div class="cols">
+  <div class="card"><b>Фьючерсы (симуляция, с плечом)</b>
+   <div class="row" style="margin-top:6px"><button id="fL" class="on">Long</button><button id="fS">Short</button>
+    <select id="flev" style="width:auto"><option value="2">2x</option><option value="3">3x</option><option value="5" selected>5x</option><option value="10">10x</option><option value="20">20x</option><option value="50">50x</option><option value="100">100x</option></select></div>
+   <label>Маржа, USDT</label>
+   <div class="row"><input id="fm" type="number" step="any"><button id="fob">Открыть на текущей паре</button></div>
+   <div class="hint" id="finfo"></div>
+   <div id="flist" style="margin-top:8px"></div>
+   <div id="fhist" class="muted" style="font-size:12px;margin-top:6px"></div>
+   <div class="hint">При 100x ликвидация наступает примерно при движении цены на 0.95%. Используйте только для тренировки.</div>
+  </div>
+  <div class="card"><b>Прогноз (тренировка без денег)</b>
+   <div class="row" style="margin-top:6px"><button data-d="up" data-m="1">▲ 1 мин</button><button data-d="up" data-m="5">▲ 5 мин</button><button data-d="down" data-m="1">▼ 1 мин</button><button data-d="down" data-m="5">▼ 5 мин</button></div>
+   <div id="plist" style="margin-top:8px"></div>
+   <div id="pstat" class="muted" style="font-size:12px;margin-top:6px"></div>
+   <b style="display:block;margin-top:12px">Сводка индикаторов</b>
+   <div id="sig" class="muted" style="font-size:12px;margin-top:4px"></div>
+  </div>
+ </div>
+ <div class="cols">
+  <div class="card"><b>DCA: регулярная покупка</b>
+   <label>Сумма на покупку, USDT</label><input id="dA" type="number" step="any">
+   <label>Интервал, минут</label><input id="dM" type="number" value="60">
+   <div class="row" style="margin-top:6px"><button id="dB">Запустить на текущей паре</button><button id="dS">Остановить</button></div>
+   <div id="dInfo" class="muted" style="font-size:12px;margin-top:6px"></div>
+  </div>
+  <div class="card"><b>Earn: накопительный счёт (симуляция)</b>
+   <label>Сумма, USDT</label><input id="eA" type="number" step="any">
+   <div class="row" style="margin-top:6px"><button id="eIn">Внести</button><button id="eOut">Вывести</button></div>
+   <div id="eInfo" class="muted" style="font-size:12px;margin-top:6px"></div>
+   <div class="hint">Фиксированный APY 5% — демо-параметр, а не обещание дохода. Реальные продукты Binance Earn имеют свои условия и риски.</div>
+  </div>
+ </div>
+</section>
+</main>
+
+<script src="js/core.js"></script>
+<script src="js/data.js"></script>
+<script src="js/orders.js"></script>
+<script src="js/indicators.js"></script>
+<script src="js/chart.js"></script>
+<script src="js/render.js"></script>
+<script src="js/controls.js"></script>
+<script src="js/events.js"></script>
+<script src="js/invest.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
